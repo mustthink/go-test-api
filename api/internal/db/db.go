@@ -2,6 +2,8 @@ package db
 
 import (
 	"context"
+	"github.com/mustthink/go-test-api/internal/types"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
@@ -29,6 +31,18 @@ func ConnClient(url string) (*mongo.Client, error) {
 	return client, nil
 }
 
-func InitDB() {
+func CheckDB(client *mongo.Client) (bool, error) {
+	collection := client.Database("test").Collection("transactions")
 
+	var result types.Transaction
+	filter := bson.D{}
+
+	err := collection.FindOne(context.TODO(), filter).Decode(&result)
+	if err != mongo.ErrNoDocuments {
+		return true, err
+	} else if err == nil {
+		return true, nil
+	}
+
+	return false, nil
 }

@@ -1,6 +1,7 @@
 package types
 
 import (
+	"math"
 	"time"
 )
 
@@ -26,14 +27,24 @@ type TransactionRaw struct {
 }
 
 func (t TransactionRaw) RawToNormal(tstamp string) (*Transaction, error) {
-	block, err := ConvHexDec(t.Block)
+	value := ConvHexWeiToDecEth(t.Value)
+
+	gas, err := ConvHexDec(t.Gas)
+	if err != nil {
+		return nil, err
+	}
+	gasprice, err := ConvHexDec(t.GasPrice)
+	if err != nil {
+		return nil, err
+	}
+	fee := float64(gas) * float64(gasprice) / math.Pow(10, 18)
+
+	timestamp, err := ConvHexDec(tstamp)
 	if err != nil {
 		return nil, err
 	}
 
-	value := ConvHexWeiToDecEth(t.Value)
-
-	timestamp, err := ConvHexDec(tstamp)
+	block, err := ConvHexDec(t.Block)
 	if err != nil {
 		return nil, err
 	}
@@ -41,9 +52,10 @@ func (t TransactionRaw) RawToNormal(tstamp string) (*Transaction, error) {
 	return &Transaction{
 		ID:        t.ID,
 		Block:     uint(block),
-		Timestamp: time.Unix(int64(timestamp), 0),
+		Timestamp: time.Unix(timestamp, 0),
 		Sender:    t.Sender,
 		Reciever:  t.Reciever,
 		Value:     value,
+		Fee:       fee,
 	}, nil
 }

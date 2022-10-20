@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-func ConvHexDec(s string) (uint64, error) {
+func ConvHexDec(s string) (int64, error) {
 	s = strings.Replace(s, "0x", "", -1)
-	dec, err := strconv.ParseUint(s, 16, 64)
+	dec, err := strconv.ParseInt(s, 16, 64)
 	if err != nil {
 		return 0, err
 	}

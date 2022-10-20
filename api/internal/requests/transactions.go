@@ -6,7 +6,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (s *Service) InsertTransaction(t []types.TransactionRaw, tstamp string) error {
+func (s *Service) InsertTransaction(t []types.TransactionRaw, tstamp string, n int) error {
 	collection := s.DB.Database("test").Collection("transactions")
 
 	transactions := make([]interface{}, len(t))
@@ -15,6 +15,7 @@ func (s *Service) InsertTransaction(t []types.TransactionRaw, tstamp string) err
 		if err != nil {
 			return err
 		}
+		try.NumVer = n
 		transactions[i] = *try
 	}
 
@@ -27,14 +28,14 @@ func (s *Service) InsertTransaction(t []types.TransactionRaw, tstamp string) err
 	return nil
 }
 
-func (s *Service) UpdRest() error {
+func (s *Service) UpdRest(n int) error {
 	collection := s.DB.Database("test").Collection("transactions")
 
 	filter := bson.D{}
 
 	update := bson.D{
 		{"$inc", bson.D{
-			{"numver", 1},
+			{"numver", n},
 		}},
 	}
 
