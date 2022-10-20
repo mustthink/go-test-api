@@ -146,6 +146,7 @@ func (app *application) InitDB(t int) {
 	if err != nil {
 		app.errorLog.Fatal(err)
 	}
+	log.Println("Initiation DB completed")
 }
 
 func (app *application) Validation(t types.Transaction) bool {
