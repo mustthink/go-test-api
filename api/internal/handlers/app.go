@@ -1,8 +1,11 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 	"github.com/mustthink/go-test-api/internal/requests"
+	"github.com/mustthink/go-test-api/internal/types"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 	"net/http"
@@ -42,4 +45,20 @@ func (app *application) clientError(w http.ResponseWriter, status int) {
 
 func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
+}
+
+func (app *application) CheckDB() (bool, error) {
+	collection := app.service.DB.Database("test").Collection("transactions")
+
+	var result types.Transaction
+	filter := bson.D{}
+
+	err := collection.FindOne(context.TODO(), filter).Decode(&result)
+	if err != mongo.ErrNoDocuments {
+		return true, err
+	} else if err == nil {
+		return true, nil
+	}
+
+	return false, nil
 }

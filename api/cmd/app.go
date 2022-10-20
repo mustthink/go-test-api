@@ -30,7 +30,6 @@ func main() {
 	if err != nil {
 		errorLog.Fatal(err)
 	}
-	print(t)
 
 	btime, err := strconv.Atoi(bt)
 	if err != nil {
@@ -48,6 +47,14 @@ func main() {
 		Addr:     addr,
 		ErrorLog: errorLog,
 		Handler:  app.Routes(),
+	}
+
+	check, err := app.CheckDB()
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+	if !check {
+		app.InitDB(t)
 	}
 
 	go app.ScanBlocks(btime)

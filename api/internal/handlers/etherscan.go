@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/mustthink/go-test-api/internal/types"
 	"io"
+	"log"
 	"net/http"
 	"time"
 )
@@ -49,9 +49,7 @@ func (app *application) GetLastID() int64 {
 	}
 
 	jsondata := struct {
-		Result struct {
-			Number string `json:"number"`
-		} `json:"result"`
+		Number string `json:"result"`
 	}{}
 
 	err = json.Unmarshal(data, &jsondata)
@@ -59,7 +57,7 @@ func (app *application) GetLastID() int64 {
 		app.errorLog.Fatal(err)
 	}
 
-	lastid, err := types.ConvHexDec(jsondata.Result.Number)
+	lastid, err := types.ConvHexDec(jsondata.Number)
 	if err != nil {
 		app.errorLog.Fatal(err)
 	}
@@ -104,28 +102,18 @@ func (app *application) ScanBlocks(t int) {
 		}
 
 		lastid = uint(newid)
-		fmt.Println("A new block has been added ")
+		log.Println("A new block has been added ")
 		time.Sleep(time.Second * time.Duration(t))
 	}
 }
 
 func (app *application) InitDB(t int) {
-	var (
-		first  = true
-		lastid int64
-		err    error
-	)
+	log.Println("Start initiating db")
+	lastid := app.GetLastID() - 1000
+	time.Sleep(time.Second / time.Duration(t))
 
 	for i := 0; i < 1000; i++ {
-		var req *http.Request
-
-		if !first {
-			req, err = http.NewRequest("GET", app.service.GenReq(lastid), nil)
-
-		} else if first {
-			req, err = http.NewRequest("GET", app.service.GenReqLast(), nil)
-			first = false
-		}
+		req, err := http.NewRequest("GET", app.service.GenReq(lastid+int64(i)), nil)
 
 		if err != nil {
 			app.errorLog.Fatal(err)
@@ -142,10 +130,9 @@ func (app *application) InitDB(t int) {
 			app.errorLog.Fatal(err)
 		}
 
-		newid, timestamp, transactions := app.BodyToData(data)
-		lastid = newid
+		_, timestamp, transactions := app.BodyToData(data)
 
-		err = app.service.InsertTransaction(transactions, timestamp, i)
+		err = app.service.InsertTransaction(transactions, timestamp, int(lastid)-i)
 		if err != nil {
 			app.errorLog.Fatal(err)
 		}
@@ -154,7 +141,7 @@ func (app *application) InitDB(t int) {
 	}
 
 	lastid = app.GetLastID()
-	err = app.service.UpdRest(int(lastid))
+	err := app.service.UpdRest(int(lastid))
 	if err != nil {
 		app.errorLog.Fatal(err)
 	}
