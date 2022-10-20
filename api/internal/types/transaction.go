@@ -10,7 +10,7 @@ type Transaction struct {
 	Block     uint      `json:"block"`
 	Timestamp time.Time `json:"timestamp"`
 	Sender    string    `json:"sender"`
-	Reciever  string    `json:"reciever"`
+	Receiver  string    `json:"receiver"`
 	Value     float64   `json:"value"`
 	NumVer    int       `json:"numver"`
 	Fee       float64   `json:"fee"`
@@ -20,7 +20,7 @@ type TransactionRaw struct {
 	ID       string `json:"hash"`
 	Block    string `json:"blockNumber"`
 	Sender   string `json:"from"`
-	Reciever string `json:"to"`
+	Receiver string `json:"to"`
 	Value    string `json:"value"`
 	Gas      string `json:"gas"`
 	GasPrice string `json:"gasPrice"`
@@ -54,7 +54,7 @@ func (t TransactionRaw) RawToNormal(tstamp string) (*Transaction, error) {
 		Block:     uint(block),
 		Timestamp: time.Unix(timestamp, 0),
 		Sender:    t.Sender,
-		Reciever:  t.Reciever,
+		Receiver:  t.Receiver,
 		Value:     value,
 		Fee:       fee,
 	}, nil

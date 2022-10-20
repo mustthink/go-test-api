@@ -22,3 +22,7 @@ func (s *Service) GenReqLast() string {
 func (s *Service) GetReqID() string {
 	return s.Ethurl + "/api?module=proxy&action=eth_blockNumber&apikey=" + s.Apikey
 }
+
+func (s *Service) GetReqTransactionID(hash string) string {
+	return s.Ethurl + "/api?module=proxy&action=eth_getTransactionByHash&txhash=" + hash + "&apikey=" + s.Apikey
+}

@@ -109,7 +109,8 @@ func (app *application) ScanBlocks(t int) {
 
 func (app *application) InitDB(t int) {
 	log.Println("Start initiating db")
-	lastid := app.GetLastID() - 1000
+	iter := app.GetLastID()
+	lastid := iter - 1000
 	time.Sleep(time.Second / time.Duration(t))
 
 	for i := 0; i < 1000; i++ {
@@ -141,8 +142,45 @@ func (app *application) InitDB(t int) {
 	}
 
 	lastid = app.GetLastID()
-	err := app.service.UpdRest(int(lastid))
+	err := app.service.UpdRest(int(lastid - iter))
 	if err != nil {
 		app.errorLog.Fatal(err)
 	}
+}
+
+func (app *application) Validation(t types.Transaction) bool {
+	req, err := http.NewRequest("GET", app.service.GetReqTransactionID(t.ID), nil)
+	if err != nil {
+		app.errorLog.Fatal(err)
+	}
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+
+	resp, err := app.client.Do(req)
+	if err != nil {
+		app.errorLog.Fatal(err)
+	}
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		app.errorLog.Fatal(err)
+	}
+
+	jsondata := struct {
+		Transaction types.TransactionRaw `json:"result"`
+	}{}
+
+	err = json.Unmarshal(data, &jsondata)
+	if err != nil {
+		app.errorLog.Fatal(err)
+	}
+
+	valt, err := jsondata.Transaction.RawToNormal("0x0")
+	if err != nil {
+		app.errorLog.Fatal(err)
+	}
+
+	if valt.ID == t.ID && valt.Value == t.Value && valt.Sender == t.Sender && valt.Receiver == valt.Receiver {
+		return true
+	}
+	return false
 }
