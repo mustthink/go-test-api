@@ -27,7 +27,7 @@ func (app *application) showTransactions(w http.ResponseWriter, r *http.Request)
 	}
 
 	transactions, err := app.service.GetTransactions(sender, receiver, id, block, page)
-	if transactions == nil {
+	if transactions == nil || len(transactions) == 0 {
 		app.clientError(w, http.StatusNotFound)
 	}
 	if err != nil {
