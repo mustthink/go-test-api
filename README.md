@@ -33,3 +33,8 @@
 > Otherwise, it forms query to MongoDB, checks pagination (if the `page` tag is present, it returns 20 transactions of the specified page). 
 > If validation is also specified in the query, all received transactions are checked against the original ones using `eth_getTransactionByHash` query. 
 > The result of the validation is displayed in the server console.
+
+> #### Features for testing
+> For a convenient deployment, just run `docker-compose` 
+> which has two containers: MongoDB and MongoDBexpress (to connect, check and configure the database)
+> and run the server itself `go run cmd/app.go` with default settings.
