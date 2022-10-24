@@ -133,7 +133,7 @@ func (app *application) InitDB(t int) {
 
 		_, timestamp, transactions := app.BodyToData(data)
 
-		err = app.service.InsertTransaction(transactions, timestamp, int(lastid)-i)
+		err = app.service.InsertTransaction(transactions, timestamp, 1000-i)
 		if err != nil {
 			app.errorLog.Fatal(err)
 		}
